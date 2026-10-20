@@ -41,56 +41,65 @@ export default function AuthForm({ mode }: { mode: Mode }) {
   }
 
   return (
-    <div className="auth-card card">
-      <h1>{isSignup ? "Create your account" : "Welcome back"}</h1>
-      <p className="muted">
-        {isSignup
-          ? "Join to read and share honest course reviews."
-          : "Log in to read and share course reviews."}
-      </p>
+    <div className="auth-layout">
+      <div className="auth-aside">
+        <p className="kicker">Behind the Grades</p>
+        <h1 className="page-title">{isSignup ? "Create your account" : "Welcome back"}</h1>
+        <p className="lead">
+          {isSignup
+            ? "Read structured reviews from past students and share your own. It takes less than a minute."
+            : "Log in to read reviews and share your experience."}
+        </p>
+        <ul className="dash-list auth-points">
+          <li>Reviews never show names or emails</li>
+          <li>Only members can read reviews</li>
+        </ul>
+      </div>
 
-      <form onSubmit={handleSubmit} className="stack">
-        <label className="field">
-          <span>Email</span>
-          <input
-            type="email"
-            name="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            data-testid={`${mode}-email`}
-          />
-        </label>
-        <label className="field">
-          <span>Password</span>
-          <input
-            type="password"
-            name="password"
-            autoComplete={isSignup ? "new-password" : "current-password"}
-            required
-            minLength={6}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            data-testid={`${mode}-password`}
-          />
-          {isSignup && <small className="muted">At least 6 characters.</small>}
-        </label>
+      <div className="auth-panel">
+        <form onSubmit={handleSubmit} className="stack">
+          <label className="field">
+            <span className="field-label">Email</span>
+            <input
+              type="email"
+              name="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              data-testid={`${mode}-email`}
+            />
+          </label>
+          <label className="field">
+            <span className="field-label">Password</span>
+            <input
+              type="password"
+              name="password"
+              autoComplete={isSignup ? "new-password" : "current-password"}
+              required
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              data-testid={`${mode}-password`}
+            />
+            {isSignup && <small className="muted">At least 6 characters.</small>}
+          </label>
 
-        {error && <p className="error" role="alert">{error}</p>}
+          {error && <p className="error" role="alert">{error}</p>}
 
-        <button type="submit" className="btn btn-primary btn-block" disabled={busy} data-testid={`${mode}-submit`}>
-          {busy ? "Please wait…" : isSignup ? "Sign up" : "Log in"}
-        </button>
-      </form>
+          <button type="submit" className="btn btn-primary btn-block" disabled={busy} data-testid={`${mode}-submit`}>
+            {busy ? "Please wait…" : isSignup ? "Sign up" : "Log in"}
+          </button>
+        </form>
 
-      <p className="muted center">
-        {isSignup ? (
-          <>Already have an account? <Link href="/login">Log in</Link></>
-        ) : (
-          <>New here? <Link href="/signup">Create an account</Link></>
-        )}
-      </p>
+        <p className="small muted auth-switch">
+          {isSignup ? (
+            <>Already have an account? <Link href="/login">Log in</Link></>
+          ) : (
+            <>New here? <Link href="/signup">Create an account</Link></>
+          )}
+        </p>
+      </div>
     </div>
   );
 }

@@ -4,7 +4,7 @@ export const metadata = { title: "Sign up · Behind the Grades" };
 
 export default function SignupPage() {
   return (
-    <div className="container auth-page">
+    <div className="container page">
       <AuthForm mode="signup" />
     </div>
   );

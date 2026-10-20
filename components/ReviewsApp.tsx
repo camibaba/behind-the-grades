@@ -38,6 +38,7 @@ export default function ReviewsApp({
   const [semester, setSemester] = useState(semesters[0]);
   const [body, setBody] = useState("");
   const [saving, setSaving] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
 
   const [search, setSearch] = useState("");
 
@@ -65,6 +66,7 @@ export default function ReviewsApp({
     if (!text) return;
     setSaving(true);
     setError(null);
+    setJustSaved(false);
 
     const { professor, course } = OFFERINGS[offering];
     const { data, error } = await supabase
@@ -77,6 +79,7 @@ export default function ReviewsApp({
     else if (data) {
       setReviews((prev) => [data, ...prev]);
       setBody("");
+      setJustSaved(true);
     }
     setSaving(false);
   }
@@ -118,32 +121,35 @@ export default function ReviewsApp({
     : reviews;
 
   return (
-    <>
-      <section className="card">
-        <h1>Write a review</h1>
+    <div className="write-layout">
+      <section className="write-panel" aria-labelledby="write-title">
+        <p className="kicker">Share your experience</p>
+        <h1 id="write-title" className="page-title">Write a review</h1>
+        <p className="muted">Anonymous: other students never see your name or email.</p>
+
         <form onSubmit={handleAdd} className="review-form">
           <label className="field field-wide">
-            <span>Professor &amp; course</span>
+            <span className="field-label">Professor and course</span>
             <select value={offering} onChange={(e) => setOffering(Number(e.target.value))}>
               {OFFERINGS.map((o, i) => (
-                <option key={i} value={i}>
+                <option key={`${o.slug}-${o.courseId}`} value={i}>
                   {o.professor} — {o.course}
                 </option>
               ))}
             </select>
           </label>
           <label className="field">
-            <span>Rating</span>
+            <span className="field-label">Overall rating</span>
             <select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
               {[5, 4, 3, 2, 1].map((n) => (
                 <option key={n} value={n}>
-                  {"★".repeat(n)} ({n})
+                  {n} out of 5
                 </option>
               ))}
             </select>
           </label>
           <label className="field">
-            <span>Semester</span>
+            <span className="field-label">Semester</span>
             <select value={semester} onChange={(e) => setSemester(e.target.value)}>
               {semesters.map((s) => (
                 <option key={s} value={s}>{s}</option>
@@ -151,14 +157,17 @@ export default function ReviewsApp({
             </select>
           </label>
           <label className="field field-wide">
-            <span>Your review</span>
+            <span className="field-label">Your review in one line</span>
             <input
               type="text"
               placeholder="e.g. Clear lectures, fair exams, heavy reading"
               maxLength={500}
               required
               value={body}
-              onChange={(e) => setBody(e.target.value)}
+              onChange={(e) => {
+                setBody(e.target.value);
+                setJustSaved(false);
+              }}
               data-testid="core-input"
             />
           </label>
@@ -171,17 +180,18 @@ export default function ReviewsApp({
             {saving ? "Saving…" : "Post review"}
           </button>
         </form>
+        {justSaved && <p className="notice" role="status">Thanks. Your review is live.</p>}
         {error && <p className="error" role="alert">{error}</p>}
       </section>
 
-      <section className="reviews-section">
+      <section className="reviews-section" aria-labelledby="all-title">
         <div className="reviews-head">
-          <h2>All reviews</h2>
-          <label className="search">
-            <span className="sr-only">Search by professor or course</span>
+          <h2 id="all-title" className="section-title">Latest reviews</h2>
+          <label className="search-inline">
+            <span className="sr-only">Search reviews by professor or course</span>
             <input
               type="search"
-              placeholder="Search professor or course…"
+              placeholder="Filter by professor or course"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -191,37 +201,37 @@ export default function ReviewsApp({
         {loading ? (
           <p className="muted">Loading reviews…</p>
         ) : visible.length === 0 ? (
-          <p className="muted">{q ? "No reviews match your search." : "No reviews yet. Be the first!"}</p>
+          <p className="empty">{q ? "No reviews match your search." : "No reviews yet. Be the first."}</p>
         ) : (
           <ul className="review-list">
             {visible.map((r) => {
               const mine = r.user_id === userId;
               const editing = editingId === r.id;
               return (
-                <li key={r.id} className="card review-card" data-testid="core-item">
-                  <div className="review-top">
+                <li key={r.id} className="review" data-testid="core-item">
+                  <div className="review-head">
                     <div>
                       <p className="review-prof">{r.professor}</p>
                       <p className="review-course">{r.course}</p>
                     </div>
                     <div className="review-meta">
-                      <Stars value={editing ? editRating : r.rating} />
-                      <span className="pill">{r.semester}</span>
+                      <Stars value={editing ? editRating : r.rating} size={14} />
+                      <span className="tag">{r.semester}</span>
                     </div>
                   </div>
 
                   {editing ? (
                     <div className="stack">
                       <label className="field">
-                        <span>Rating</span>
+                        <span className="field-label">Rating</span>
                         <select value={editRating} onChange={(e) => setEditRating(Number(e.target.value))}>
                           {[5, 4, 3, 2, 1].map((n) => (
-                            <option key={n} value={n}>{n}</option>
+                            <option key={n} value={n}>{n} out of 5</option>
                           ))}
                         </select>
                       </label>
                       <label className="field">
-                        <span>Review</span>
+                        <span className="field-label">Review</span>
                         <input
                           type="text"
                           maxLength={500}
@@ -230,8 +240,8 @@ export default function ReviewsApp({
                         />
                       </label>
                       <div className="row">
-                        <button type="button" className="btn btn-primary" onClick={() => saveEdit(r.id)}>Save</button>
-                        <button type="button" className="btn btn-ghost" onClick={() => setEditingId(null)}>Cancel</button>
+                        <button type="button" className="btn btn-primary btn-sm" onClick={() => saveEdit(r.id)}>Save</button>
+                        <button type="button" className="btn btn-secondary btn-sm" onClick={() => setEditingId(null)}>Cancel</button>
                       </div>
                     </div>
                   ) : (
@@ -239,10 +249,10 @@ export default function ReviewsApp({
                   )}
 
                   {mine && !editing && (
-                    <div className="row review-actions">
-                      <span className="pill pill-mine">Your review</span>
-                      <button type="button" className="btn btn-ghost btn-sm" onClick={() => startEdit(r)}>Edit</button>
-                      <button type="button" className="btn btn-danger btn-sm" onClick={() => handleDelete(r.id)}>Delete</button>
+                    <div className="review-actions">
+                      <span className="tag tag-mine">Your review</span>
+                      <button type="button" className="text-btn" onClick={() => startEdit(r)}>Edit</button>
+                      <button type="button" className="text-btn text-btn-danger" onClick={() => handleDelete(r.id)}>Delete</button>
                     </div>
                   )}
                 </li>
@@ -251,6 +261,6 @@ export default function ReviewsApp({
           </ul>
         )}
       </section>
-    </>
+    </div>
   );
 }

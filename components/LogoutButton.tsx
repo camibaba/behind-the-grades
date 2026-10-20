@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export default function LogoutButton() {
+// `primary` marks the always-visible header button that carries data-testid="logout".
+// The copy inside the account menu must not repeat the test id.
+export default function LogoutButton({
+  primary = false,
+  className = "",
+}: {
+  primary?: boolean;
+  className?: string;
+}) {
   const [busy, setBusy] = useState(false);
 
   async function handleLogout() {
@@ -15,8 +23,8 @@ export default function LogoutButton() {
   return (
     <button
       type="button"
-      data-testid="logout"
-      className="btn btn-ghost"
+      data-testid={primary ? "logout" : undefined}
+      className={className}
       onClick={handleLogout}
       disabled={busy}
     >
