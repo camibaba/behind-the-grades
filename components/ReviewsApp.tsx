@@ -60,9 +60,12 @@ export default function ReviewsApp({
     load();
   }, [supabase]);
 
-  async function handleAdd(e: FormEvent) {
+  async function handleAdd(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const text = body.trim();
+    // Read the field itself as well as state: text typed before React finished
+    // loading the page is in the input but never reached `body`.
+    const input = e.currentTarget.elements.namedItem("body") as HTMLInputElement | null;
+    const text = (input?.value || body).trim();
     if (!text) return;
     setSaving(true);
     setError(null);
@@ -79,6 +82,7 @@ export default function ReviewsApp({
     else if (data) {
       setReviews((prev) => [data, ...prev]);
       setBody("");
+      if (input) input.value = "";
       setJustSaved(true);
     }
     setSaving(false);
@@ -160,6 +164,7 @@ export default function ReviewsApp({
             <span className="field-label">Your review in one line</span>
             <input
               type="text"
+              name="body"
               placeholder="e.g. Clear lectures, fair exams, heavy reading"
               maxLength={500}
               required

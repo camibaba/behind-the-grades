@@ -14,15 +14,23 @@ export default function AuthForm({ mode }: { mode: Mode }) {
 
   const isSignup = mode === "signup";
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setBusy(true);
 
+    // Read the fields directly too: values typed before React finished loading
+    // the page are in the inputs but never reached state.
+    const form = new FormData(e.currentTarget);
+    const creds = {
+      email: String(form.get("email") || email),
+      password: String(form.get("password") || password),
+    };
+
     const supabase = createClient();
     const { data, error } = isSignup
-      ? await supabase.auth.signUp({ email, password })
-      : await supabase.auth.signInWithPassword({ email, password });
+      ? await supabase.auth.signUp(creds)
+      : await supabase.auth.signInWithPassword(creds);
 
     if (error) {
       setError(error.message);

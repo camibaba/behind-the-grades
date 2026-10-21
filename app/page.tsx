@@ -26,7 +26,7 @@ export default async function HomePage() {
           <div className="hero-cta">
             {/* The one primary button. Logged out it is the sign-up button. */}
             <Link href={user ? "#schools" : "/signup"} className="btn btn-primary btn-lg">
-              Get to know your professors
+              {user ? "Get to know your professors" : "Sign up: get to know your professors"}
             </Link>
             <p className="hero-note">
               {user ? (
