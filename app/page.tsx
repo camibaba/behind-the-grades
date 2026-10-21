@@ -1,111 +1,56 @@
 import Link from "next/link";
-import LevelCard from "@/components/LevelCard";
+import { ArrowDoodle, StarDoodle, UnderlineDoodle } from "@/components/Doodle";
+import FolderStack from "@/components/FolderStack";
 import SampleBadge from "@/components/SampleBadge";
-import SearchBox from "@/components/SearchBox";
-import {
-  coursesOfUniversity,
-  degreesOfUniversity,
-  professors,
-  courses,
-  schoolsOf,
-  universities,
-} from "@/lib/catalog";
 import { getViewer } from "@/lib/reviews";
-
-function plural(n: number, word: string) {
-  return `${n} ${word}${n === 1 ? "" : "s"}`;
-}
 
 export default async function HomePage() {
   const { user } = await getViewer();
 
   return (
     <>
-      <section className="intro">
-        <div className="container intro-grid">
-          <div className="intro-copy">
-            <p className="kicker">For IE students choosing their courses</p>
-            <h1 className="display">Know the course before you enrol.</h1>
-            <p className="lead">
-              Behind the Grades collects structured, honest feedback from students who have taken the
-              class: workload, grading, teaching style and what to expect. Choose professors and courses
-              with confidence.
-            </p>
-            <div className="intro-actions">
+      <section className="hero">
+        <div className="container hero-inner">
+          <h1 className="hero-title">
+            Know your{" "}
+            <span className="underlined">
+              professors
+              <UnderlineDoodle />
+            </span>{" "}
+            before you enroll.
+          </h1>
+          <p className="hero-sub">
+            RANKED is where IE University students rank professors and share honest reviews of their
+            classes, school by school.
+          </p>
+          <div className="hero-cta">
+            {/* The one primary button. Logged out it is the sign-up button. */}
+            <Link href={user ? "#schools" : "/signup"} className="btn btn-primary btn-lg">
+              Get to know your professors
+            </Link>
+            <p className="hero-note">
               {user ? (
-                <Link href="/app" className="btn btn-primary btn-lg">Write a review</Link>
+                "Pick a school below to start."
               ) : (
-                <>
-                  <Link href="/signup" className="btn btn-primary btn-lg">Sign up</Link>
-                  <span className="muted">
-                    Free for students. Already a member? <Link href="/login">Log in</Link>
-                  </span>
-                </>
+                <>Free sign-up with your email. Already a member? <Link href="/login">Log in</Link></>
               )}
-            </div>
+            </p>
           </div>
-
-          <ol className="intro-steps" aria-label="How it works">
-            <li>
-              <span className="step-num">01</span>
-              <span><strong>Explore</strong> universities, schools, degrees, courses and professors.</span>
-            </li>
-            <li>
-              <span className="step-num">02</span>
-              <span><strong>Read</strong> structured reviews on clarity, workload, grading and more.</span>
-            </li>
-            <li>
-              <span className="step-num">03</span>
-              <span><strong>Share</strong> your own experience. Reviews never show your name.</span>
-            </li>
-          </ol>
+          <ArrowDoodle className="hero-arrow" />
         </div>
       </section>
 
-      <section className="container section" aria-labelledby="explore-title">
-        <div className="section-head">
-          <div>
-            <h2 id="explore-title" className="section-title">Explore the catalog</h2>
-            <p className="muted">Start with a university, or search for anything below.</p>
-          </div>
+      <section id="schools" className="container schools" aria-labelledby="schools-title">
+        <div className="schools-head">
+          <h2 id="schools-title" className="section-title">
+            Pick a school <StarDoodle size={20} />
+          </h2>
           <SampleBadge />
         </div>
-
-        <SearchBox />
-
-        <ul className="level-grid">
-          {universities.map((u, i) => {
-            const schoolCount = schoolsOf(u.id).length;
-            return (
-              <LevelCard
-                key={u.id}
-                index={i}
-                href={`/discover/${u.id}`}
-                kicker={`University · ${u.city}`}
-                title={u.name}
-                description={u.description}
-                meta={[
-                  schoolCount ? plural(schoolCount, "school") : null,
-                  plural(degreesOfUniversity(u.id).length, "degree"),
-                  plural(coursesOfUniversity(u.id).length, "course"),
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              />
-            );
-          })}
-        </ul>
-
-        <div className="browse-all">
-          <Link href="/courses" className="browse-link">
-            <span className="kicker">Browse</span>
-            <span>All {courses.length} courses</span>
-          </Link>
-          <Link href="/professors" className="browse-link">
-            <span className="kicker">Browse</span>
-            <span>All {professors.length} professors</span>
-          </Link>
-        </div>
+        <p className="muted schools-intro">
+          Each folder holds a school&apos;s courses by year and the professors who teach them.
+        </p>
+        <FolderStack />
       </section>
     </>
   );

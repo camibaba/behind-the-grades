@@ -1,6 +1,6 @@
 import ComingSoon from "@/components/ComingSoon";
 
-export const metadata = { title: "My reviews · Behind the Grades" };
+export const metadata = { title: "My reviews" };
 
 export default function MyReviewsPage() {
   return (

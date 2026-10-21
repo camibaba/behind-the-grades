@@ -43,7 +43,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
   return (
     <div className="auth-layout">
       <div className="auth-aside">
-        <p className="kicker">Behind the Grades</p>
+        <p className="kicker">RANKED</p>
         <h1 className="page-title">{isSignup ? "Create your account" : "Welcome back"}</h1>
         <p className="lead">
           {isSignup

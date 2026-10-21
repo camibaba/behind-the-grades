@@ -2,77 +2,58 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import LockedPreview from "@/components/LockedPreview";
+import RatingInline from "@/components/RatingInline";
+import ReviewItem from "@/components/ReviewItem";
 import SampleBadge from "@/components/SampleBadge";
-import Stars from "@/components/Stars";
-import {
-  averageRating,
-  courseById,
-  degreeById,
-  degreeHref,
-  degreeTrail,
-  placementOf,
-  professorsOfCourse,
-  type Crumb,
-  type Degree,
-} from "@/lib/catalog";
-import { getViewer } from "@/lib/reviews";
+import { courseById, professorsOfCourse, schoolById, schoolTrail } from "@/lib/catalog";
+import { getViewer, statsFor } from "@/lib/reviews";
 
-type Props = {
-  params: Promise<{ course: string }>;
-  searchParams: Promise<{ from?: string }>;
-};
+type Params = { params: Promise<{ course: string }> };
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Params) {
   const { course } = await params;
-  return { title: `${courseById(course)?.name ?? "Course"} · Behind the Grades` };
+  return { title: courseById(course)?.name ?? "Course" };
 }
 
-export default async function CoursePage({ params, searchParams }: Props) {
+export default async function CoursePage({ params }: Params) {
   const { course: id } = await params;
-  const { from } = await searchParams;
   const course = courseById(id);
   if (!course) notFound();
+  const school = schoolById(course.schoolId)!;
+  const teachers = professorsOfCourse(course.id);
 
-  const offeredIn = course.degreeIds.map(degreeById).filter((d): d is Degree => Boolean(d));
-  // Breadcrumbs follow the degree the student came from, else the first one.
-  const context = offeredIn.find((d) => d.id === from) ?? offeredIn[0];
-  const trail: Crumb[] = context
-    ? [...degreeTrail(context), { label: course.name }]
-    : [{ label: "Discover", href: "/" }, { label: "Courses", href: "/courses" }, { label: course.name }];
-
-  const profs = professorsOfCourse(course.id);
   const { supabase, user } = await getViewer();
   const reviews = user
     ? ((
         await supabase
           .from("reviews")
-          .select("id, professor, rating, semester, body, created_at")
+          .select("id, professor, course, rating, semester, body, created_at")
           .eq("course", course.name)
           .order("created_at", { ascending: false })
       ).data ?? [])
     : null;
-  const average = reviews ? averageRating(reviews.map((r) => r.rating)) : null;
 
   return (
     <div className="container page">
       <header className="page-head">
-        <Breadcrumbs trail={trail} />
-        <div className="page-head-row">
-          <p className="kicker">
-            {course.code}
-            {course.year ? ` · Year ${course.year}` : ""}
-            {course.credits ? ` · ${course.credits} credits` : ""}
-          </p>
-          <SampleBadge />
-        </div>
+        <Breadcrumbs
+          trail={[
+            ...schoolTrail(school),
+            { label: `Year ${course.year}`, href: `/schools/${school.id}#year-${course.year}` },
+            { label: course.name },
+          ]}
+        />
+        <p className="kicker">{course.code} · Year {course.year} · {school.short}</p>
         <h1 className="page-title">{course.name}</h1>
-        <p className="lead">{course.summary}</p>
       </header>
 
       <div className="split">
-        <section className="split-side info-panel" aria-labelledby="info-title">
-          <h2 id="info-title" className="section-label">Course information</h2>
-          <p className="small muted">From the catalog</p>
+        <section className={`briefing folder-${school.color}`} aria-labelledby="brief-title">
+          <div className="briefing-head">
+            <h2 id="brief-title" className="briefing-title">Course information (sample)</h2>
+            <SampleBadge />
+          </div>
+          <p>{course.summary}</p>
 
           <h3 className="info-h">What it covers</h3>
           <ul className="dash-list">{course.covers.map((x) => <li key={x}>{x}</li>)}</ul>
@@ -82,75 +63,58 @@ export default async function CoursePage({ params, searchParams }: Props) {
             {course.assessment.map((a) => (
               <li key={a.label}>
                 <span>{a.label}</span>
-                {a.weight !== undefined && <span className="weight">{a.weight}%</span>}
+                <span className="weight">{a.weight}%</span>
               </li>
             ))}
           </ul>
-
-          <h3 className="info-h">In class</h3>
-          <ul className="dash-list">{course.inClass.map((x) => <li key={x}>{x}</li>)}</ul>
-
-          <h3 className="info-h">Skills developed</h3>
-          <ul className="chips">{course.skills.map((x) => <li key={x} className="chip">{x}</li>)}</ul>
-
-          <h3 className="info-h">Taught by</h3>
-          {profs.length === 0 ? (
-            <p className="muted">Professor not listed yet.</p>
-          ) : (
-            <ul className="plain-list">
-              {profs.map((p) => (
-                <li key={p.id}><Link href={`/professors/${p.id}`} className="strong-link">{p.name}</Link></li>
-              ))}
-            </ul>
-          )}
-
-          <h3 className="info-h">Offered in</h3>
-          <ul className="plain-list">
-            {offeredIn.map((d) => (
-              <li key={d.id}><Link href={degreeHref(d)}>{placementOf(d)}</Link></li>
-            ))}
-          </ul>
         </section>
 
-        <section className="split-main" aria-labelledby="student-title">
-          <h2 id="student-title" className="section-label">From student reviews</h2>
-          <p className="small muted">Personal opinions of past students, not verified facts.</p>
-          {!reviews ? (
-            <LockedPreview />
-          ) : reviews.length === 0 ? (
-            <div className="empty-block">
-              <p className="empty-title">No reviews yet</p>
-              <p className="muted">Took this course? Help the next students by sharing how it went.</p>
-              {profs[0] && (
-                <Link href={`/app?professor=${profs[0].id}`} className="btn btn-secondary">Write the first review</Link>
-              )}
-            </div>
-          ) : (
-            <>
-              <div className="score">
-                <span className="score-num">{average!.toFixed(1)}</span>
-                <span className="score-meta">
-                  <Stars value={average!} />
-                  <span className="muted">Average of {reviews.length} {reviews.length === 1 ? "review" : "reviews"}</span>
-                </span>
-              </div>
-              <ul className="review-list">
-                {reviews.map((r) => (
-                  <li key={r.id} className="review">
-                    <div className="review-head">
-                      <span className="review-course">{r.professor}</span>
-                      <span className="review-meta">
-                        <Stars value={r.rating} size={14} />
-                        <span className="tag">{r.semester}</span>
-                      </span>
-                    </div>
-                    <p className="review-body">{r.body}</p>
+        <div className="split-main">
+          <section aria-labelledby="teach-title">
+            <h2 id="teach-title" className="section-label">Who teaches it</h2>
+            {teachers.length === 0 ? (
+              <p className="empty">No professor is listed for this course yet.</p>
+            ) : (
+              <ul className="prof-chips">
+                {teachers.map((p) => (
+                  <li key={p.id}>
+                    <Link href={`/professors/${p.id}`} className="prof-chip">
+                      <span className="prof-chip-name">{p.name}</span>
+                      <span className="prof-chip-title">{p.title}</span>
+                    </Link>
                   </li>
                 ))}
               </ul>
-            </>
-          )}
-        </section>
+            )}
+          </section>
+
+          <section aria-labelledby="student-title" className="section-gap">
+            <h2 id="student-title" className="section-label">From student reviews</h2>
+            <p className="small muted">Personal opinions of past students, not verified facts.</p>
+            {!reviews ? (
+              <LockedPreview title="Ratings for this course are for members" rows={3} />
+            ) : reviews.length === 0 ? (
+              <div className="empty-block">
+                <p className="empty-title">No reviews yet</p>
+                <p className="muted">Took this course? Help the next students by sharing how it went.</p>
+                {teachers[0] && (
+                  <Link href={`/app?professor=${teachers[0].id}&course=${course.id}`} className="btn btn-secondary">Write the first review</Link>
+                )}
+              </div>
+            ) : (
+              <>
+                <p className="rating-line">
+                  <RatingInline stats={statsFor(reviews, () => true)} />
+                </p>
+                <ul className="review-list">
+                  {reviews.map((r) => (
+                    <ReviewItem key={r.id} review={r} heading={r.professor} />
+                  ))}
+                </ul>
+              </>
+            )}
+          </section>
+        </div>
       </div>
     </div>
   );

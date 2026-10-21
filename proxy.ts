@@ -1,8 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Pages that require a logged-in user. Catalog pages (/, /discover, /courses,
-// /professors, /search) are public; they only load reviews for logged-in users.
+// Pages that require a logged-in user. Catalog pages (/, /schools, /courses,
+// /professors, /rankings, /search) are public; they only load ratings for logged-in users.
 const PROTECTED = ["/app", "/me"];
 
 // Refreshes the Supabase session on every request and protects PROTECTED pages.

@@ -1,6 +1,6 @@
 import ComingSoon from "@/components/ComingSoon";
 
-export const metadata = { title: "Saved · Behind the Grades" };
+export const metadata = { title: "Saved" };
 
 export default function SavedPage() {
   return (

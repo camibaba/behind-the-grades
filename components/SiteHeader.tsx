@@ -3,22 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AccountMenu from "./AccountMenu";
-import Icon from "./Icon";
 import LogoutButton from "./LogoutButton";
+import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
 import { NAV } from "@/lib/nav";
 
 export default function SiteHeader({ email }: { email: string | null }) {
   const pathname = usePathname();
   const loggedIn = email !== null;
-  // The landing page has its own Sign up button; the contract wants only one there.
+  // The landing page has its own sign-up button; the contract wants only one there.
   const showSignup = !loggedIn && pathname !== "/";
 
   return (
     <header className="site-header">
       <a href="#main" className="skip-link">Skip to content</a>
       <div className="container header-inner">
-        <Link href="/" className="wordmark">Behind the Grades</Link>
+        <Logo />
 
         <nav className="main-nav" aria-label="Main">
           {NAV.map((item) => {
@@ -37,19 +37,18 @@ export default function SiteHeader({ email }: { email: string | null }) {
         </nav>
 
         <div className="header-actions">
-          <Link href="/search" className="icon-btn" aria-label="Search the catalog">
-            <Icon name="search" />
-          </Link>
-
           {loggedIn ? (
             <>
+              <Link href="/app" className="btn btn-primary btn-sm header-write" aria-label="Write a review">
+                <span className="label-long">Write a review</span>
+                <span className="label-short">Review</span>
+              </Link>
               <AccountMenu email={email} />
               <LogoutButton primary className="logout-discreet" />
             </>
           ) : (
             <>
               <Link href="/login" className="nav-link nav-login">Log in</Link>
-              {showSignup && <Link href="/signup" className="btn btn-primary btn-sm header-signup">Sign up</Link>}
             </>
           )}
 

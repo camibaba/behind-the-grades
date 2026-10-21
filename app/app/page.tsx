@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { OFFERINGS } from "@/lib/catalog";
 import ReviewsApp from "@/components/ReviewsApp";
 
-export const metadata = { title: "Write a review · Behind the Grades" };
+export const metadata = { title: "Write a review" };
 
 export default async function AppPage({
   searchParams,

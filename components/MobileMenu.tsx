@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ACCOUNT_LINKS, initialOf } from "./AccountMenu";
 import Icon from "./Icon";
+import Logo from "./Logo";
 import LogoutButton from "./LogoutButton";
 import { NAV } from "@/lib/nav";
 
@@ -42,7 +43,7 @@ export default function MobileMenu({ email, showSignup }: { email: string | null
       >
         <div className="sheet-inner">
           <div className="sheet-head">
-            <span className="wordmark">Behind the Grades</span>
+            <Logo asLink={false} />
             <button type="button" className="icon-btn" aria-label="Close menu" onClick={close}>
               <Icon name="close" />
             </button>
@@ -57,9 +58,11 @@ export default function MobileMenu({ email, showSignup }: { email: string | null
                   </Link>
                 </li>
               ))}
-              <li>
-                <Link href="/search" onClick={close}>Search</Link>
-              </li>
+              {email && (
+                <li>
+                  <Link href="/app" aria-current={pathname === "/app" ? "page" : undefined} onClick={close}>Write a review</Link>
+                </li>
+              )}
             </ul>
           </nav>
 

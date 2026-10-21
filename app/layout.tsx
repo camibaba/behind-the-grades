@@ -1,35 +1,41 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Newsreader } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import Header from "@/components/Header";
+import Logo from "@/components/Logo";
 import "./globals.css";
 
-const serif = Newsreader({ subsets: ["latin"], variable: "--font-serif", display: "swap" });
-const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const grotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["300", "400", "700"],
+  variable: "--font-grotesk",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Behind the Grades",
+  title: { default: "RANKED: know your professors before you enroll", template: "%s · RANKED" },
   description:
-    "Structured, honest feedback from past IE students so you can choose courses and professors with confidence.",
+    "RANKED is where IE University students rank professors and share honest reviews of their classes, school by school.",
+  applicationName: "RANKED",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#FFFFFF",
+  themeColor: "#F7F3E6",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${serif.variable} ${sans.variable}`}>
+    <html lang="en" className={grotesk.variable}>
       <body>
         <Header />
         <main id="main">{children}</main>
         <footer className="site-footer">
           <div className="container footer-inner">
-            <span className="wordmark wordmark-sm">Behind the Grades</span>
+            <Logo />
             <p>
-              Student opinions, not official evaluations. The catalog uses sample data: universities,
-              schools and degrees are placeholders, and professors and courses are fictional.
+              Student opinions, not official evaluations. Professors, biographies and courses are
+              fictional sample data. RANKED is a student project and is not affiliated with IE University.
             </p>
           </div>
         </footer>

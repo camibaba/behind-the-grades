@@ -3,9 +3,9 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import SearchBox from "@/components/SearchBox";
 import { searchCatalog, type SearchResult } from "@/lib/catalog";
 
-export const metadata = { title: "Search · Behind the Grades" };
+export const metadata = { title: "Search" };
 
-const ORDER: SearchResult["kind"][] = ["Professor", "Course", "Degree", "School", "University"];
+const ORDER: SearchResult["kind"][] = ["Professor", "Course", "School"];
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q = "" } = await searchParams;
@@ -14,7 +14,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   return (
     <div className="container page page-narrow">
       <header className="page-head">
-        <Breadcrumbs trail={[{ label: "Discover", href: "/" }, { label: "Search" }]} />
+        <Breadcrumbs trail={[{ label: "Home", href: "/" }, { label: "Search" }]} />
         <h1 className="page-title">Search the catalog</h1>
       </header>
 
@@ -30,7 +30,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             if (group.length === 0) return null;
             return (
               <div key={kind} className="result-group">
-                <h2 className="section-label">{kind === "University" ? "Universities" : `${kind}s`}</h2>
+                <h2 className="section-label">{`${kind}s`}</h2>
                 <ul className="course-rows">
                   {group.map((r) => (
                     <li key={r.href} className="course-row">

@@ -1,22 +1,30 @@
 import Link from "next/link";
 import Icon from "./Icon";
 
-// Shown to logged-out visitors where review content would be. The shapes are
-// placeholders only: no review data is ever sent to a logged-out browser.
-export default function LockedPreview({ what = "reviews and summaries" }: { what?: string }) {
+// Shown to logged-out visitors where ratings, rankings or reviews would be.
+// The rows are placeholders only: no review data is ever sent to a logged-out browser.
+export default function LockedPreview({
+  title = "Ratings and reviews are for members",
+  rows = 4,
+}: {
+  title?: string;
+  rows?: number;
+}) {
   return (
     <div className="locked">
       <div className="locked-ghost" aria-hidden="true">
-        <span style={{ width: "82%" }} />
-        <span style={{ width: "64%" }} />
-        <span style={{ width: "74%" }} />
-        <span style={{ width: "48%" }} />
+        {Array.from({ length: rows }, (_, i) => (
+          <span key={i} className="ghost-row">
+            <span className="ghost-num">{i + 1}</span>
+            <span className="ghost-bar" style={{ width: `${78 - i * 11}%` }} />
+          </span>
+        ))}
       </div>
       <div className="locked-body">
         <Icon name="lock" size={22} />
-        <p className="locked-title">Student {what} are for members</p>
-        <p className="muted">Create a free account to read what past students say. Reviews never show names or emails.</p>
-        <Link href="/signup" className="btn btn-primary">Sign up to read reviews</Link>
+        <p className="locked-title">{title}</p>
+        <p className="muted">Create a free account to see how students rate each professor. Reviews never show names or emails.</p>
+        <Link href="/signup" className="btn btn-primary">Sign up to see rankings</Link>
         <p className="small muted">Already a member? <Link href="/login">Log in</Link></p>
       </div>
     </div>

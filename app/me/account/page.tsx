@@ -1,6 +1,6 @@
 import ComingSoon from "@/components/ComingSoon";
 
-export const metadata = { title: "Account settings · Behind the Grades" };
+export const metadata = { title: "Account settings" };
 
 export default function AccountPage() {
   return (
