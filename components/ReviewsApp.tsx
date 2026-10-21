@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { OFFERINGS, recentSemesters } from "@/lib/catalog";
+import { useHydrated } from "@/lib/useHydrated";
 import Stars from "./Stars";
 
 type Review = {
@@ -38,6 +39,7 @@ export default function ReviewsApp({
   const [semester, setSemester] = useState(semesters[0]);
   const [body, setBody] = useState("");
   const [saving, setSaving] = useState(false);
+  const hydrated = useHydrated();
   const [justSaved, setJustSaved] = useState(false);
 
   const [search, setSearch] = useState("");
@@ -179,7 +181,7 @@ export default function ReviewsApp({
           <button
             type="submit"
             className="btn btn-primary field-wide"
-            disabled={saving}
+            disabled={saving || !hydrated}
             data-testid="core-submit"
           >
             {saving ? "Saving…" : "Post review"}

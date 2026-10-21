@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useHydrated } from "@/lib/useHydrated";
 
 type Mode = "signup" | "login";
 
@@ -11,6 +12,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const hydrated = useHydrated();
 
   const isSignup = mode === "signup";
 
@@ -95,7 +97,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
 
           {error && <p className="error" role="alert">{error}</p>}
 
-          <button type="submit" className="btn btn-primary btn-block" disabled={busy} data-testid={`${mode}-submit`}>
+          <button type="submit" className="btn btn-primary btn-block" disabled={busy || !hydrated} data-testid={`${mode}-submit`}>
             {busy ? "Please wait…" : isSignup ? "Sign up" : "Log in"}
           </button>
         </form>
